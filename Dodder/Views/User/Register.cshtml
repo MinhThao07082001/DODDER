@@ -1,0 +1,76 @@
+﻿@model Dodder.Models.UserAccount
+@{
+    ViewData["Title"] = "Register";
+    Layout = "~/Views/_LayoutPage1.cshtml";
+    List<Gender> genders = (List<Gender>)ViewBag.Genders;
+}
+@if (TempData["error"] != null) { 
+    <script>
+        alert("Email or Phone is already existed");
+    </script>
+}
+<div class="main">
+    <canvas id="myCanvas"></canvas>
+    <div class="main-w3l">
+        <h1 class="logo-w3">DODDER</h1>
+        <div class="w3layouts-main2">
+            <h3>Register Now</h3>
+            <form asp-controller="User" asp-action="Register" method="post">
+                <label style="color:white">Name</label>
+                <input type="text" asp-for="Name" />
+                <span asp-validation-for="Name"></span><br />
+
+                <label style="color:white">Email</label>
+                <input type="text" asp-for="Email" />
+                <span asp-validation-for="Email"></span><br />
+
+                <label style="color:white">Phone</label>
+                <input type="text" asp-for="Phone" />
+                <span asp-validation-for="Phone"></span><br />
+
+                <label style="color:white">Password</label>
+                <input type="password" asp-for="Password" />
+                <span asp-validation-for="Password"></span><br />
+
+                <label style="color:white">Gender</label><br />
+                @foreach (var g in genders)
+                {
+                    <input type="radio" asp-for="GenderId" value="@g.Id" required="" /><span style="color:whitesmoke">@g.Name</span><br/>
+                }
+                <span asp-validation-for="Gender"></span><br />
+
+                <input type="submit" value="Register" name="register">
+            </form>
+            <a asp-controller="User" asp-action="Login" style="color:white">If you already have an account, click here to log in</a>
+            <a asp-controller="Home" asp-action="Dodder" style="color:white">Come back home</a>
+        </div>
+        <div class="clear"></div>
+        <!-- //main -->
+        <!--footer-->
+        <div class="footer-w3l">
+            <p>2021 version. All rights reserved | Design by DODDER</p>
+        </div>
+        <!--//footer-->
+    </div>
+</div>
+
+
+<!--scripts-->
+<!-- js -->
+<script type="text/javascript" src="js/jquery-2.1.4.min.js"></script>
+<!-- //js -->
+<!-- particles-JavaScript -->
+<script src="js/particles.min.js"></script>
+<script>
+    window.onload = function () {
+        Particles.init({
+            selector: '#myCanvas',
+            color: '#eba7a7',
+            connectParticles: true,
+            minDistance: 90
+        });
+    };
+</script>
+
+<!-- //particles-JavaScript -->
+<!--//scripts-->
