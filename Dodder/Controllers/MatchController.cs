@@ -32,6 +32,8 @@ namespace Dodder.Controllers
                 if (db.UserLikes.Where(u => u.UserAccountId == id && u.UserAccountIdLike == UserId).FirstOrDefault() != null)
                 {
                     notification = "Matched";
+                    //tao phong chat
+                    db.Conversations.Add(new Conversation() { UserAccountIdCreator = UserId, UserAccountId2 = id });
                 }
             }
             else
@@ -40,6 +42,24 @@ namespace Dodder.Controllers
             }
             db.SaveChanges();
             return Json(notification);
+        }
+        public IActionResult Message(int id = 0)
+        {
+            Int32 UserId = (int)HttpContext.Session.GetInt32("id");
+            //neu id =0 chi hien thi ra list danh sach nguoi nhan tin
+            //lay danh sach phong
+            if(id > 0)
+            {
+                Conversation conversation = db.Conversations.Where(c => c.UserAccountIdCreator == UserId && c.UserAccountId2 == id ||
+                c.UserAccountIdCreator == id && c.UserAccountId2 == UserId).FirstOrDefault();
+                if(conversation != null)
+                {
+                    ViewBag.ConversationID = conversation.Id;
+                    ViewBag.UserID = UserId;
+                    ViewBag.Messages = db.Messages.Where(m => m.ConversationId == conversation.Id).ToList();
+                }
+            }
+            return View();
         }
     }
 }

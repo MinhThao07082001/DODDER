@@ -1,0 +1,63 @@
+﻿@page
+@{ var conversationId = (int)ViewBag.ConversationID;
+    var userId = (int)ViewBag.UserId;
+    List<Message> messages = (List<Message>)ViewBag.Messages;}
+<div class="container">
+    <div class="row">&nbsp;</div>
+    <div class="row">
+        <div class="col-2">Message</div>
+        <div class="col-4"><input type="text" id="messageInput" /></div>
+    </div>
+    <div class="row">&nbsp;</div>
+    <div class="row">
+        <div class="col-6">
+            <input type="button" id="sendButton" value="Send Message" />
+        </div>
+    </div>
+</div>
+<h1>@conversationId</h1>
+<div class="row">
+    <div class="col-12">
+        <hr />
+    </div>
+</div>
+<div class="row">
+    <div class="col-6">
+        <ul id="messagesList"></ul>
+        @foreach (var item in messages)
+        {
+            <li>@(item.UserAccountIdSender): @(item.Content)</li>
+        }
+    </div>
+</div>
+<script src="~/js/signalr/dist/browser/signalr.js"></script>
+<script>
+    "use strict";
+    var connection = new signalR.HubConnectionBuilder().withUrl("/message").build();
+
+    //Disable send button until connection is established
+    connection.start().then(result => {
+        console.log("SignalR is now connected")
+    }).then(result => {
+            connection.invoke("AddToGroup", @(conversationId), @(userId)).catch(function (err) {
+            return console.error(err.toString());
+    });
+    });
+    connection.on("ReceiveMessage", function (userId, message) {
+        var li = document.createElement("li");
+        document.getElementById("messagesList").appendChild(li);
+        // We can assign user-supplied strings to an element's textContent because it
+        // is not interpreted as markup. If you're assigning in any other way, you
+        // should be aware of possible script injection concerns.
+        li.textContent = `${userId}: ${message}`;
+    });
+
+    document.getElementById("sendButton").addEventListener("click", function (event) {
+        var message = document.getElementById("messageInput").value;
+        connection.invoke("SendMessageToGroup", @(conversationId), message,  @(userId)).catch(function (err) {
+            return console.error(err.toString());
+        });
+        event.preventDefault();
+    });
+
+</script>
