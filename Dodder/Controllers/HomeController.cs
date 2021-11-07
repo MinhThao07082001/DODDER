@@ -1,11 +1,12 @@
 ﻿using Dodder.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using System;
 
 namespace Dodder.Controllers
 {
@@ -21,6 +22,7 @@ namespace Dodder.Controllers
         PRN211Context db = new PRN211Context();
         public IActionResult Dodder()
         {
+            HttpContext.Session.SetInt32("id", 4);
             return View();
         }
         public IActionResult Admin()

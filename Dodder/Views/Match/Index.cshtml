@@ -1,5 +1,105 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿
+@using Dodder.Models
 @{
+    ViewData["Title"] = "Test";
+    Layout = "_MatchLayout.cshtml";
 }
+@{
+    List<UserAccount> userAccounts = (List<UserAccount>) ViewBag.ListUsers;
+}
+<div class="confetti">
+    <div class="confetti-piece"></div>
+    <div class="confetti-piece"></div>
+    <div class="confetti-piece"></div>
+    <div class="confetti-piece"></div>
+    <div class="confetti-piece"></div>
+    <div class="confetti-piece"></div>
+    <div class="confetti-piece"></div>
+    <div class="confetti-piece"></div>
+    <div class="confetti-piece"></div>
+    <div class="confetti-piece"></div>
+    <div class="confetti-piece"></div>
+    <div class="confetti-piece"></div>
+    <div class="confetti-piece"></div>
+</div>
+<div class="container">
+    <div class="side">
+        <div class="header">
+            <div class="avatar">
+                <img src="https://anhdep123.com/wp-content/uploads/2020/05/%E1%BA%A3nh-c%C6%B0%E1%BB%9Di-ch%E1%BA%BF.jpg" alt="" />
+            </div>
+            <div class="title">Anonymous</div>
+        </div>
+        <div class="menu">
+            <ul>
+                <li>Matches</li>
+                <li class="active">Messages</li>
+            </ul>
+        </div>
+        <div class="messages">
+            <div class="avatar">
+                <img src="https://s.memehay.com/files/posts/20200816/1bf9900c6546496b7ac7366e9cbb5f8fcho-vang-do-mat-xau-ho.jpg" alt="" />
+            </div>
+            <div class="message">
+                <div class="user">Kute Dog</div>
+                <div class="text">Lovely and sokute</div>
+            </div>
+        </div>
+        <div class="messages">
+            <div class="avatar">
+                <img src="https://i.pinimg.com/550x/5b/ca/f6/5bcaf6fb75792d8851b6c7063c41c63c.jpg" alt="" />
+            </div>
+            <div class="message">
+                <div class="user">Food Dog</div>
+                <div class="text">So lazy</div>
+            </div>
+        </div>
+        <div class="messages">
+            <div class="avatar">
+                <img src="https://we25.vn/media2018/Img_News/2019/08/26/c6cccad359696f50a8d8d3c656da55e9_20190826164355.jpg" alt="" />
+            </div>
+            <div class="message">
+                <div class="user">Shiba</div>
+                <div class="text">Hello World</div>
+            </div>
+        </div>
+        <div class="messages">
+            <div class="avatar">
+                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQnq-OY-4ZyMdICtXq3H2fuVixkAnqkhJwsSwzoASNutbzGO4wxpqbq9H5OMoaRo_FSOQY&usqp=CAU" alt="" />
+            </div>
+            <div class="message">
+                <div class="user">Troll Dog@(userAccounts.Count)</div>
+                <div class="text">👉👈</div>
+            </div>
+        </div>
+    </div>
+    <div class="content">
+        <h1 id="demo" style="position: absolute"></h1>
+        <div class="tinder">
+            <div class="tinder--status">
+                <i class="fa fa-remove"></i>
+                <i class="fa fa-heart"></i>
+            </div>
+            <div class="tinder--cards">
+                @foreach (var item in userAccounts)
+                {
+                    <div class="tinder--card">
+                        <input type="hidden" value="@(item.Id)" />
+                        <img style="position: relative" src="https://images.unsplash.com/photo-1604311795833-25e1d5c128c6?ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8OSUzQTE2fGVufDB8fDB8fA%3D%3D&ixlib=rb-1.2.1&w=1000&q=80" />
+                        <h3 style="position: absolute; bottom: 120px; margin-left: 4px;">@(item.Name)</h3>
+                        <p style="position: absolute; bottom: 100px; margin-left: 4px;">@(item.Password)</p>
+                    </div>
+                }
+            </div>
+
+            <div class="tinder--buttons">
+                <button id="nope"><i class="fa fa-remove"></i></button>
+                <button id="love"><i class="fa fa-heart"></i></button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+
