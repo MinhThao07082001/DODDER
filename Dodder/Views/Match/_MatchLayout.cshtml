@@ -16,5 +16,10 @@
     <div>
         @RenderBody()
     </div>
+    <script>
+    function redirectToMessage(id) {
+     window.location.href = '@Url.Action("Message", "Match")?id=' + id;
+    }
+    </script>
 </body>
 </html>

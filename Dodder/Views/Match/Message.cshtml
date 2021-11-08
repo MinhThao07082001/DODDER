@@ -1,39 +1,78 @@
-﻿@page
-
+﻿@{
+    ViewData["Title"] = "Message";
+    Layout = "_MatchLayout.cshtml";
+}
 @{ var conversationId = (int)ViewBag.ConversationID;
-    var userId = (int)ViewBag.UserId;
-    List<Message> messages = (List<Message>)ViewBag.Messages;}
+    var userId = (int) ViewBag.UserId;
+    PRN211Context db = new PRN211Context();
+    List<Message> messages = (List<Message>)ViewBag.Messages;
+    int? toId = (int) ViewBag.toId;
+    List<Conversation> conversations = (List<Conversation>)ViewBag.ListMessage;
+    UserAccount getUserById(int? id)
+    {
+        return db.UserAccounts.Where(u => u.Id == id).FirstOrDefault();
+    }}
 <div class="container">
-    <div class="row">&nbsp;</div>
-    <div class="row">
-        <div class="col-2">Message</div>
-        <div class="col-4"><input type="text" id="messageInput" /></div>
+    <div class="side">
+        <div class="header">
+            <div class="avatar">
+                <img src="https://anhdep123.com/wp-content/uploads/2020/05/%E1%BA%A3nh-c%C6%B0%E1%BB%9Di-ch%E1%BA%BF.jpg" alt="" />
+            </div>
+            <div class="title">Anonymous</div>
+        </div>
+        <div class="menu">
+            <ul>
+                <li>Matches</li>
+                <li class="active">Messages</li>
+            </ul>
+        </div>
+        <h1>@(ViewContext.RouteData.Values["id"])</h1>
+        @foreach (var item in conversations)
+        {
+            UserAccount toUser = item.UserAccountIdCreator == userId ? getUserById(item.UserAccountId2) : getUserById(item.UserAccountIdCreator);
+            <div class="messages" style="cursor: pointer; background-color: @(toUser.Id == toId?"#D3D3D3":"#f5f7fa")" onclick="redirectToMessage(@(toUser.Id));">
+                <div class="avatar">
+                    <img src="https://s.memehay.com/files/posts/20200816/1bf9900c6546496b7ac7366e9cbb5f8fcho-vang-do-mat-xau-ho.jpg" alt="" />
+                </div>
+                <div class="message">
+                    <div class="user">@(toUser.Name)</div>
+                    @{ Message LastMessage = db.Messages.Where(m => m.ConversationId == item.Id).OrderByDescending(m => m.CreateTime).FirstOrDefault();}
+                    <div class="text">@(LastMessage==null? "Say Bruh" : LastMessage.Content)</div>
+                </div>
+            </div>
+        }
     </div>
-    <div class="row">&nbsp;</div>
+    <div style="margin: 20%">
+        <div class="row">&nbsp;</div>
+        <div class="row">
+            <div class="col-2">Message</div>
+            <div class="col-4"><input type="text" id="messageInput" /></div>
+        </div>
+        <div class="row">&nbsp;</div>
+        <div class="row">
+            <div class="col-6">
+                <input type="button" id="sendButton" value="Send Message" />
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <hr />
+        </div>
+    </div>
     <div class="row">
         <div class="col-6">
-            <input type="button" id="sendButton" value="Send Message" />
+            <ul id="messagesList">
+                @foreach (var item in messages)
+                {
+                    <li>@(item.UserAccountIdSender): @(item.Content)</li>
+                }
+            </ul>
         </div>
     </div>
 </div>
-<h1>@conversationId</h1>
-<div class="row">
-    <div class="col-12">
-        <hr />
-    </div>
-</div>
-<div class="row">
-    <div class="col-6">
-        <ul id="messagesList">
-            @foreach (var item in messages)
-            {
-                <li>@(item.UserAccountIdSender): @(item.Content)</li>
-            }
-        </ul>
-    </div>
-</div>
-<script src="~/js/signalr/dist/browser/signalr.js"></script>
-<script>
+    <script src="~/js/signalr/dist/browser/signalr.js"></script>
+    <script>
     "use strict";
     var connection = new signalR.HubConnectionBuilder().withUrl("/message").build();
 
@@ -62,4 +101,4 @@
         event.preventDefault();
     });
 
-</script>
+    </script>

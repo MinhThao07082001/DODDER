@@ -51,7 +51,11 @@ namespace Dodder.Controllers
             Int32 UserId = (int)HttpContext.Session.GetInt32("id");
             //neu id =0 chi hien thi ra list danh sach nguoi nhan tin
             //lay danh sach phong
-            if(id > 0)
+            List<Conversation> conversations = db.Conversations.Where(c => c.UserAccountIdCreator == UserId || c.UserAccountId2 == UserId).ToList();
+            ViewBag.ListMessage = conversations;
+            ViewBag.UserId = UserId;
+            ViewBag.toId = id;
+            if (id > 0)
             {
                 Conversation conversation = db.Conversations.Where(c => c.UserAccountIdCreator == UserId && c.UserAccountId2 == id ||
                 c.UserAccountIdCreator == id && c.UserAccountId2 == UserId).FirstOrDefault();
