@@ -15,6 +15,9 @@ namespace Dodder.Controllers
         {
 
             Int32 UserId = (int)HttpContext.Session.GetInt32("id");
+            List<Conversation> conversations = db.Conversations.Where(c => c.UserAccountIdCreator == UserId || c.UserAccountId2 == UserId).ToList();
+            ViewBag.ListMessage = conversations;
+            ViewBag.UserId = UserId;
             ViewBag.ListUsers = db.UserAccounts
                 .Where(u => u.Id != UserId && //khac chinh minh
                        db.UserDislikes.Where(d => d.UserAccountId == UserId && d.UserAccountIdDislike == u.Id).FirstOrDefault() == null &&  //user kia khong nam trong bang dislike va like cua user nay

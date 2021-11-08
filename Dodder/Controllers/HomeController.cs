@@ -22,7 +22,7 @@ namespace Dodder.Controllers
         PRN211Context db = new PRN211Context();
         public IActionResult Dodder(int id)
         {
-            HttpContext.Session.SetInt32("id", id);
+            
             return View();
         }
         public IActionResult Admin()

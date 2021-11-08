@@ -64,7 +64,8 @@ namespace Dodder.Controllers
             {
                 HttpContext.Session.SetString("User", JsonConvert.SerializeObject(obj));
                 HttpContext.Session.SetString("UserSession", JsonConvert.SerializeObject(user));
-                return RedirectToAction("Home", "User");
+                HttpContext.Session.SetInt32("id", obj.Id);
+                return RedirectToAction("Index", "Match");
             }else
             {
                 TempData["error"] = "Error";

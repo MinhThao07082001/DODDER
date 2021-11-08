@@ -1,4 +1,5 @@
 ﻿@page
+
 @{ var conversationId = (int)ViewBag.ConversationID;
     var userId = (int)ViewBag.UserId;
     List<Message> messages = (List<Message>)ViewBag.Messages;}
@@ -23,11 +24,12 @@
 </div>
 <div class="row">
     <div class="col-6">
-        <ul id="messagesList"></ul>
-        @foreach (var item in messages)
-        {
-            <li>@(item.UserAccountIdSender): @(item.Content)</li>
-        }
+        <ul id="messagesList">
+            @foreach (var item in messages)
+            {
+                <li>@(item.UserAccountIdSender): @(item.Content)</li>
+            }
+        </ul>
     </div>
 </div>
 <script src="~/js/signalr/dist/browser/signalr.js"></script>
