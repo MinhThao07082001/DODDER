@@ -73,7 +73,7 @@
         @foreach (var item in conversations)
         {
             UserAccount toUser = item.UserAccountIdCreator == UserId ? getUserById(item.UserAccountId2) : getUserById(item.UserAccountIdCreator);
-            <div class="messages" style="cursor: pointer" onclick="redirectToMessage(@(toUser.Id));">
+            <div class="messages" style="cursor: url(https://cur.cursors-4u.net/games/gam-13/gam1224.cur), auto !important;" onclick="redirectToMessage(@(toUser.Id));">
                 <div class="avatar">
                     <img src="https://s.memehay.com/files/posts/20200816/1bf9900c6546496b7ac7366e9cbb5f8fcho-vang-do-mat-xau-ho.jpg" alt="" />
                 </div>
@@ -85,29 +85,29 @@
             </div>
         }
     </div>
-    <div class="content">
-        <h1 id="demo" style="position: absolute"></h1>
-        <div class="tinder">
-            <div class="tinder--status">
-                <i class="fa fa-remove"></i>
+    <div class="content" style="padding: 0;">
+        <div class="tinder" style="margin-bottom: 50%">
+            <div class="tinder--status" style="margin: -6% 0 0 -10%; ">
+                <i style="color: cornflowerblue" class="fa fa-times"></i>
                 <i class="fa fa-heart"></i>
             </div>
-            <div class="tinder--cards">
+            <div class="tinder--cards" style="padding: 0; margin: 0; align-items: center; margin-right:20%;">
                 @foreach (var item in userAccounts)
                 {
-                    <div class="tinder--card">
+                    <div class="tinder--card" style="height: 720px; padding: 0">
                         <input type="hidden" value="@(item.Id)" />
-                        <img style="position: relative" src="https://images.unsplash.com/photo-1604311795833-25e1d5c128c6?ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8OSUzQTE2fGVufDB8fDB8fA%3D%3D&ixlib=rb-1.2.1&w=1000&q=80" />
+                        <img style="position: relative; height: 100%" src="https://images.unsplash.com/photo-1604311795833-25e1d5c128c6?ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8OSUzQTE2fGVufDB8fDB8fA%3D%3D&ixlib=rb-1.2.1&w=1000&q=80" />
                         <h3 style="position: absolute; bottom: 120px; margin-left: 4px;">@(item.Name)</h3>
                         <p style="position: absolute; bottom: 100px; margin-left: 4px;">@(item.Password)</p>
                     </div>
                 }
+                <div class="tinder--buttons"  style="z-index: 9999999; display: flex; bottom: 120px; margin-top: 40%;">
+                    <button id="nope" style="cursor: url(https://cur.cursors-4u.net/games/gam-14/gam1338.cur), auto !important;"><i style="color: cornflowerblue; " class="fa fa-times"></i></button>
+                    <button id="love" style="cursor: url('https://i.imgur.com/K10EMnr.png'),auto!important;"><i class="fa fa-heart"></i></button>
+                </div>
             </div>
 
-            <div class="tinder--buttons">
-                <button id="nope"><i class="fa fa-remove"></i></button>
-                <button id="love"><i class="fa fa-heart"></i></button>
-            </div>
+
         </div>
 
     </div>
