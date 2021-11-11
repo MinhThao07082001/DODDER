@@ -1,5 +1,590 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@using System.Linq;
+@using Dodder.Models
 @{
+    ViewData["Title"] = "Test";
+    Layout = "_MatchLayout.cshtml";
+    var user = TempData["user"] as UserAccount;
 }
+@{
+    PRN211Context db = new PRN211Context();
+    Int32 UserId = (int)ViewBag.UserId;
+    List<UserAccount> userAccounts = (List<UserAccount>)ViewBag.ListUsers;
+    List<Conversation> conversations = (List<Conversation>)ViewBag.ListMessage;
+    UserAccount getUserById(int? id)
+    {
+        return db.UserAccounts.Where(u => u.Id == id).FirstOrDefault();
+    }
+    int getAgeByDate(DateTime date)
+    {
+        // Save today's date.
+        var today = DateTime.Today;
+
+        // Calculate the age.
+        var age = today.Year - date.Year;
+
+        // Go back to the year in which the person was born in case of a leap year
+        if (date.Date > today.AddYears(-age)) age--;
+        return age;
+    }
+    UserAccount thisUser = getUserById(UserId);
+    double getDistanceFromLatLonInKm(double lat1, double lon1, double lat2, double lon2) {
+        var R = 6371; // Radius of the earth in km
+        var dLat = deg2rad(lat2 - lat1); // deg2rad below
+        var dLon = deg2rad(lon2 - lon1);
+        var a =
+            Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
+            Math.Cos(deg2rad(lat1)) *
+            Math.Cos(deg2rad(lat2)) *
+            Math.Sin(dLon / 2) *
+            Math.Sin(dLon / 2);
+        var c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
+        var d = R * c; // Distance in km
+        return Math.Round(d,1);
+    }
+
+    double deg2rad(double deg) {
+        return deg * (Math.PI / 180);
+    }
+}
+<div class="scr3" style="display: none">
+    <div class="container">
+        <div class="scr3__wrap flexi">
+            <button id="matchBtn" class="button demobuttons" data-hystmodal="#modalSimple"></button>
+        </div>
+    </div>
+</div>
+
+<div class="hystmodal" id="modalSimple" aria-hidden="true">
+    <div class="hystmodal__wrap">
+        <div class="hystmodal__window" role="dialog" aria-modal="true">
+            <button class="hystmodal__close" data-hystclose></button>
+            <div class="hystmodal__styled">
+                <div class="h1">Matched!</div>
+                <lord-icon src="https://cdn.lordicon.com/lupuorrc.json"
+                           trigger="loop"
+                           colors="primary:#121331,secondary:#08a88a"
+                           stroke="61"
+                           style="width:250px;height:250px">
+                </lord-icon>
+                <p>Congratulation. Send a message now.</p>
+                <button data-hystmodal="#modalLong" id="btnMsg">Anh ban a</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="confetti">
+    <div class="confetti-piece"></div>
+    <div class="confetti-piece"></div>
+    <div class="confetti-piece"></div>
+    <div class="confetti-piece"></div>
+    <div class="confetti-piece"></div>
+    <div class="confetti-piece"></div>
+    <div class="confetti-piece"></div>
+    <div class="confetti-piece"></div>
+    <div class="confetti-piece"></div>
+    <div class="confetti-piece"></div>
+    <div class="confetti-piece"></div>
+    <div class="confetti-piece"></div>
+    <div class="confetti-piece"></div>
+</div>
+<div class="container">
+    <div class="side">
+        <div class="header">
+            <div class="avatar">
+                <img src="https://anhdep123.com/wp-content/uploads/2020/05/%E1%BA%A3nh-c%C6%B0%E1%BB%9Di-ch%E1%BA%BF.jpg" alt="" />
+            </div>
+            <div class="title" style="display:flex">
+                <p>@user.Nickname</p>
+                <a asp-controller="User" asp-action="Logout">Logout</a>
+            </div>
+        </div>
+        <div class="menu">
+            <ul>
+                <li>Matches</li>
+                <li class="active">Messages</li>
+            </ul>
+        </div>
+        @foreach (var item in conversations)
+        {
+            UserAccount toUser = item.UserAccountIdCreator == UserId ? getUserById(item.UserAccountId2) : getUserById(item.UserAccountIdCreator);
+            <div class="messages" style="cursor: url(https://cur.cursors-4u.net/games/gam-13/gam1224.cur), auto !important;" onclick="redirectToMessage(@(toUser.Id));">
+                <div class="avatar">
+                    <img src="https://s.memehay.com/files/posts/20200816/1bf9900c6546496b7ac7366e9cbb5f8fcho-vang-do-mat-xau-ho.jpg" alt="" />
+                </div>
+                <div class="message">
+                    <div class="user">@(toUser.Name)</div>
+                    @{ Message LastMessage = db.Messages.Where(m => m.ConversationId == item.Id).OrderByDescending(m => m.CreateTime).FirstOrDefault();}
+                    <div class="text">@(LastMessage==null? "Say Bruh" : LastMessage.Content)</div>
+                </div>
+            </div>
+        }
+    </div>
+    <div class="content" style="padding: 0;">
+        <div class="tinder" style="margin-bottom: 50%">
+            <div class="tinder--status" style="margin: -6% 0 0 -10%; ">
+                <i style="color: cornflowerblue" class="fa fa-times"></i>
+                <i class="fa fa-heart"></i>
+            </div>
+            <div class="tinder--cards" style="padding: 0; margin: 0; align-items: center; margin-right:20%;">
+                @foreach (var item in userAccounts)
+                {
+                <div class="tinder--card" style="height: 720px; padding: 0">
+                    <input type="hidden" value="@(item.Id)" />
+                    <img style="position: relative; height: 100%" src="https://images.unsplash.com/photo-1604311795833-25e1d5c128c6?ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8OSUzQTE2fGVufDB8fDB8fA%3D%3D&ixlib=rb-1.2.1&w=1000&q=80" />
+                    <h3 style="position: absolute; bottom: 120px; margin-left: 4px;">@(item.Name)</h3>
+                    <p style="position: absolute; bottom: 100px; margin-left: 4px;">@(item.Address)</p>
+                    <p style="position: absolute; bottom: 80px; margin-left: 4px;">@(getAgeByDate(item.Dob))</p>
+                    <p style="position: absolute; bottom: 60px; margin-left: 4px;">@(getDistanceFromLatLonInKm(thisUser.Latitude, thisUser.Longitude, item.Latitude, item.Longitude)) km</p>
+                </div>
+                }
+                <div class="tinder--buttons" style="z-index: 9999999; display: flex; bottom: 120px; margin-top: 40%;">
+                    <button id="nope" style="cursor: url(https://cur.cursors-4u.net/games/gam-14/gam1338.cur), auto !important;"><i style="color: cornflowerblue; " class="fa fa-times"></i></button>
+                    <button id="love" style="cursor: url('https://i.imgur.com/K10EMnr.png'),auto!important;"><i class="fa fa-heart"></i></button>
+                </div>
+            </div>
+
+
+        </div>
+
+    </div>
+</div>
+<script src="~/js/hystmodal.min.js"></script>
+<script>
+    const myModal = new HystModal({
+        // for dynamic init() of modals
+        // linkAttributeName: false,
+        catchFocus: true,
+        closeOnEsc: true,
+        backscroll: true,
+        beforeOpen: function (modal) {
+            console.log('Message before opening the modal');
+            console.log(modal); //modal window object
+        },
+        afterClose: function (modal) {
+            console.log('Message after modal has closed');
+            console.log(modal); //modal window object
+
+            //If Youtube video inside Modal, close it on modal closing
+            let videoframe = modal.openedWindow.querySelector('iframe');
+            if (videoframe) {
+                videoframe.contentWindow.postMessage('{"event":"command","func":"stopVideo","args":""}', '*');
+            }
+        },
+    });
+    // for dynamic init() of modals
+    // myModal.config.linkAttributeName = 'data-hystmodal';
+    // myModal.init();
+</script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="~/js/hammer.min.js"></script>
+<script type="text/javascript">
+    "use strict";
+
+    var tinderContainer = document.querySelector(".tinder");
+    //get all cards
+    var allCards = document.querySelectorAll(".tinder--card");
+    //button nope
+    var nope = document.getElementById("nope");
+    //button love
+    var love = document.getElementById("love");
+
+    function initCards(card, index) {
+        var newCards = document.querySelectorAll(".tinder--card:not(.removed)");
+        newCards.forEach(function (card, index) {
+            card.style.zIndex = allCards.length - index;
+            card.style.transform =
+                "scale(" + (20 - index) / 20 + ") translateY(-" + 30 * index + "px)";
+            card.style.opacity = (10 - index) / 10;
+        });
+
+        tinderContainer.classList.add("loaded");
+    }
+
+    initCards();
+
+    allCards.forEach(function (el) {
+        var hammertime = new Hammer(el);
+
+        hammertime.on("pan", function (event) {
+            el.classList.add("moving");
+        });
+
+        hammertime.on("pan", function (event) {
+            if (event.deltaX === 0) return;
+            if (event.center.x === 0 && event.center.y === 0) return;
+
+            tinderContainer.classList.toggle("tinder_love", event.deltaX > 0);
+            tinderContainer.classList.toggle("tinder_nope", event.deltaX < 0);
+
+            var xMulti = event.deltaX * 0.03;
+            var yMulti = event.deltaY / 80;
+            var rotate = xMulti * yMulti;
+
+            event.target.style.transform =
+                "translate(" +
+                event.deltaX +
+                "px, " +
+                event.deltaY +
+                "px) rotate(" +
+                rotate +
+                "deg)";
+        });
+
+        hammertime.on("panend", function (event) {
+            el.classList.remove("moving");
+            tinderContainer.classList.remove("tinder_love");
+            tinderContainer.classList.remove("tinder_nope");
+            var id = Number(event.target.childNodes[1].value);
+            var moveOutWidth = document.body.clientWidth;
+            //
+            var keep = Math.abs(event.deltaX) < 80 || Math.abs(event.velocityX) < 0.5;
+
+            event.target.classList.toggle("removed", !keep);
+            //Tha chuot, giu nguyen
+            if (keep) {
+                event.target.style.transform = "";
+            } else {
+                var endX = Math.max(
+                    Math.abs(event.velocityX) * moveOutWidth,
+                    moveOutWidth
+                );
+                var toX = event.deltaX > 0 ? endX : -endX;
+                var endY = Math.abs(event.velocityY) * moveOutWidth;
+                var toY = event.deltaY > 0 ? endY : -endY;
+                var xMulti = event.deltaX * 0.03;
+                var yMulti = event.deltaY / 80;
+                var rotate = xMulti * yMulti;
+
+                event.target.style.transform =
+                    "translate(" +
+                    toX +
+                    "px, " +
+                    (toY + event.deltaY) +
+                    "px) rotate(" +
+                    rotate +
+                    "deg)";
+                if (event.deltaX < 0) {
+                    SendData(id, false)
+                } else {
+                    SendData(id, true)
+                }
+                initCards();
+            }
+        });
+    });
+
+    function createButtonListener(love) {
+        return function (event) {
+            var cards = document.querySelectorAll(".tinder--card:not(.removed)");
+            var moveOutWidth = document.body.clientWidth * 1.5;
+
+            if (!cards.length) return false;
+
+            var card = cards[0];
+            var id = Number(card.childNodes[1].value);
+            card.classList.add("removed");
+
+            if (love) {
+                card.style.transform =
+                    "translate(" + moveOutWidth + "px, -100px) rotate(-30deg)";
+                SendData(id, true)
+
+                initCards();
+            } else {
+                card.style.transform =
+                    "translate(-" + moveOutWidth + "px, -100px) rotate(30deg)";
+                SendData(id, false)
+            }
+
+            initCards();
+
+            event.preventDefault();
+        };
+    }
+
+    var nopeListener = createButtonListener(false);
+    var loveListener = createButtonListener(true);
+
+    nope.addEventListener("click", nopeListener);
+    love.addEventListener("click", loveListener);
+
+    document.addEventListener('keydown', function (e) {
+        switch (e.keyCode) {
+            case 37:
+                document.getElementById("nope").click();
+                break;
+            case 39:
+                document.getElementById("love").click();
+                break;
+        }
+    });
+</script>
+<script>
+    'use strict';
+
+    // If set to true, the user must press
+    // UP UP DOWN ODWN LEFT RIGHT LEFT RIGHT A B
+    // to trigger the confetti with a random color theme.
+    // Otherwise the confetti constantly falls.
+    var onlyOnKonami = true;
+    function uoa() {
+        // Globals
+        var $window = $(window)
+            , random = Math.random
+            , cos = Math.cos
+            , sin = Math.sin
+            , PI = Math.PI
+            , PI2 = PI * 2
+            , timer = undefined
+            , frame = undefined
+            , confetti = [];
+
+        var runFor = 2000
+        var isRunning = true
+
+        setTimeout(() => {
+            isRunning = false
+        }, runFor);
+
+        // Settings
+        var konami = [38, 38, 40, 40, 37, 39, 37, 39, 66, 65]
+            , pointer = 0;
+
+        var particles = 150
+            , spread = 20
+            , sizeMin = 5
+            , sizeMax = 12 - sizeMin
+            , eccentricity = 10
+            , deviation = 100
+            , dxThetaMin = -.1
+            , dxThetaMax = -dxThetaMin - dxThetaMin
+            , dyMin = .13
+            , dyMax = .18
+            , dThetaMin = .4
+            , dThetaMax = .7 - dThetaMin;
+
+        var colorThemes = [
+            function () {
+                return color(200 * random() | 0, 200 * random() | 0, 200 * random() | 0);
+            }, function () {
+                var black = 200 * random() | 0; return color(200, black, black);
+            }, function () {
+                var black = 200 * random() | 0; return color(black, 200, black);
+            }, function () {
+                var black = 200 * random() | 0; return color(black, black, 200);
+            }, function () {
+                return color(200, 100, 200 * random() | 0);
+            }, function () {
+                return color(200 * random() | 0, 200, 200);
+            }, function () {
+                var black = 256 * random() | 0; return color(black, black, black);
+            }, function () {
+                return colorThemes[random() < .5 ? 1 : 2]();
+            }, function () {
+                return colorThemes[random() < .5 ? 3 : 5]();
+            }, function () {
+                return colorThemes[random() < .5 ? 2 : 4]();
+            }
+        ];
+        function color(r, g, b) {
+            return 'rgb(' + r + ',' + g + ',' + b + ')';
+        }
+
+        // Cosine interpolation
+        function interpolation(a, b, t) {
+            return (1 - cos(PI * t)) / 2 * (b - a) + a;
+        }
+
+        // Create a 1D Maximal Poisson Disc over [0, 1]
+        var radius = 1 / eccentricity, radius2 = radius + radius;
+        function createPoisson() {
+            // domain is the set of points which are still available to pick from
+            // D = union{ [d_i, d_i+1] | i is even }
+            var domain = [radius, 1 - radius], measure = 1 - radius2, spline = [0, 1];
+            while (measure) {
+                var dart = measure * random(), i, l, interval, a, b, c, d;
+
+                // Find where dart lies
+                for (i = 0, l = domain.length, measure = 0; i < l; i += 2) {
+                    a = domain[i], b = domain[i + 1], interval = b - a;
+                    if (dart < measure + interval) {
+                        spline.push(dart += a - measure);
+                        break;
+                    }
+                    measure += interval;
+                }
+                c = dart - radius, d = dart + radius;
+
+                // Update the domain
+                for (i = domain.length - 1; i > 0; i -= 2) {
+                    l = i - 1, a = domain[l], b = domain[i];
+                    // c---d          c---d  Do nothing
+                    //   c-----d  c-----d    Move interior
+                    //   c--------------d    Delete interval
+                    //         c--d          Split interval
+                    //       a------b
+                    if (a >= c && a < d)
+                        if (b > d) domain[l] = d; // Move interior (Left case)
+                        else domain.splice(l, 2); // Delete interval
+                    else if (a < c && b > c)
+                        if (b <= d) domain[i] = c; // Move interior (Right case)
+                        else domain.splice(i, 0, c, d); // Split interval
+                }
+
+                // Re-measure the domain
+                for (i = 0, l = domain.length, measure = 0; i < l; i += 2)
+                    measure += domain[i + 1] - domain[i];
+            }
+
+            return spline.sort();
+        }
+
+        // Create the overarching container
+        var container = document.createElement('div');
+        container.style.position = 'fixed';
+        container.style.top = '0';
+        container.style.left = '0';
+        container.style.width = '100%';
+        container.style.height = '0';
+        container.style.overflow = 'visible';
+        container.style.zIndex = '9999';
+
+        // Confetto constructor
+        function Confetto(theme) {
+            this.frame = 0;
+            this.outer = document.createElement('div');
+            this.inner = document.createElement('div');
+            this.outer.appendChild(this.inner);
+
+            var outerStyle = this.outer.style, innerStyle = this.inner.style;
+            outerStyle.position = 'absolute';
+            outerStyle.width = (sizeMin + sizeMax * random()) + 'px';
+            outerStyle.height = (sizeMin + sizeMax * random()) + 'px';
+            innerStyle.width = '100%';
+            innerStyle.height = '100%';
+            innerStyle.backgroundColor = theme();
+
+            outerStyle.perspective = '50px';
+            outerStyle.transform = 'rotate(' + (360 * random()) + 'deg)';
+            this.axis = 'rotate3D(' +
+                cos(360 * random()) + ',' +
+                cos(360 * random()) + ',0,';
+            this.theta = 360 * random();
+            this.dTheta = dThetaMin + dThetaMax * random();
+            innerStyle.transform = this.axis + this.theta + 'deg)';
+
+            this.x = $window.width() * random();
+            this.y = -deviation;
+            this.dx = sin(dxThetaMin + dxThetaMax * random());
+            this.dy = dyMin + dyMax * random();
+            outerStyle.left = this.x + 'px';
+            outerStyle.top = this.y + 'px';
+
+            // Create the periodic spline
+            this.splineX = createPoisson();
+            this.splineY = [];
+            for (var i = 1, l = this.splineX.length - 1; i < l; ++i)
+                this.splineY[i] = deviation * random();
+            this.splineY[0] = this.splineY[l] = deviation * random();
+
+            this.update = function (height, delta) {
+                this.frame += delta;
+                this.x += this.dx * delta;
+                this.y += this.dy * delta;
+                this.theta += this.dTheta * delta;
+
+                // Compute spline and convert to polar
+                var phi = this.frame % 7777 / 7777, i = 0, j = 1;
+                while (phi >= this.splineX[j]) i = j++;
+                var rho = interpolation(
+                    this.splineY[i],
+                    this.splineY[j],
+                    (phi - this.splineX[i]) / (this.splineX[j] - this.splineX[i])
+                );
+                phi *= PI2;
+
+                outerStyle.left = this.x + rho * cos(phi) + 'px';
+                outerStyle.top = this.y + rho * sin(phi) + 'px';
+                innerStyle.transform = this.axis + this.theta + 'deg)';
+                return this.y > height + deviation;
+            };
+        }
+
+
+        function poof() {
+            if (!frame) {
+                // Append the container
+                document.body.appendChild(container);
+
+                // Add confetti
+
+                var theme = colorThemes[onlyOnKonami ? colorThemes.length * random() | 0 : 0]
+                    , count = 0;
+
+                (function addConfetto() {
+
+                    if (onlyOnKonami && ++count > particles)
+                        return timer = undefined;
+
+                    if (isRunning) {
+                        var confetto = new Confetto(theme);
+                        confetti.push(confetto);
+
+                        container.appendChild(confetto.outer);
+                        timer = setTimeout(addConfetto, spread * random());
+                    }
+                })(0);
+
+
+                // Start the loop
+                var prev = undefined;
+                requestAnimationFrame(function loop(timestamp) {
+                    var delta = prev ? timestamp - prev : 0;
+                    prev = timestamp;
+                    var height = $window.height();
+
+                    for (var i = confetti.length - 1; i >= 0; --i) {
+                        if (confetti[i].update(height, delta)) {
+                            container.removeChild(confetti[i].outer);
+                            confetti.splice(i, 1);
+                        }
+                    }
+
+                    if (timer || confetti.length)
+                        return frame = requestAnimationFrame(loop);
+
+                    // Cleanup
+                    document.body.removeChild(container);
+                    frame = undefined;
+                });
+            }
+        }
+        poof();
+    }
+</script>
+<script src="https://cdn.lordicon.com/libs/mssddfmo/lord-icon-2.1.0.js"></script>
+<script>
+         function SendData(id, love) {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("React")',
+            dataType: 'json',
+            data: { "id": id, "love": love },
+            success: function (data) {
+                if (data === "Matched") {
+                    uoa();
+                    var btnMsg = document.getElementById("btnMsg");
+                    btnMsg.addEventListener('click', function (event) {
+                        window.location.href = '@Url.Action("Message", "Match")?id=' + id;
+                    });
+                    document.getElementById("matchBtn").click();
+                }
+            },
+            error: function (ex) {
+                alert(ex.responseText);
+            }
+        });
+        return false;
+        }
+</script>

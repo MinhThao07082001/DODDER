@@ -23,8 +23,11 @@
 
                 <label style="color:white">Password</label>
                 <input type="password" asp-for="Password" />
+                <input type="text" id="lat" asp-for="Latitude" hidden/>
+                <input type="text" id="longt" asp-for="Longitude" hidden/>
                 <span asp-validation-for="Password"></span><br />
                 <input type="submit" value="Login" name="login">
+
             </form>
             <a asp-controller="User" asp-action="Register" style="color:white">If you don't have an account, click here to sign up</a>
             <a asp-controller="Home" asp-action="Dodder" style="color:white">Come back home</a>
@@ -57,6 +60,22 @@
             minDistance: 90
         });
     };
+</script>
+<script>
+    function getLocation() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(showPosition);
+        } else {
+            alert("Geolocation is not supported by this browser.");
+        }
+    }
+    function showPosition(position) {
+        var lat = position.coords.latitude;
+        var long = position.coords.longitude;
+        document.getElementById("lat").value = lat;
+        document.getElementById("long").value = long;
+    }
+    getLocation();
 </script>
 
 <!-- //particles-JavaScript -->
