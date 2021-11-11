@@ -1,0 +1,108 @@
+﻿@{
+    ViewData["Title"] = "Message";
+    Layout = "_MatchLayout.cshtml";
+    var user = TempData["user"] as UserAccount;
+}
+@{ var conversationId = (int)ViewBag.ConversationID;
+    var userId = (int) ViewBag.UserId;
+    PRN211Context db = new PRN211Context();
+    List<Message> messages = (List<Message>)ViewBag.Messages;
+    int? toId = (int) ViewBag.toId;
+    List<Conversation> conversations = (List<Conversation>)ViewBag.ListMessage;
+    UserAccount getUserById(int? id)
+    {
+        return db.UserAccounts.Where(u => u.Id == id).FirstOrDefault();
+    }}
+<div class="container">
+    <div class="side">
+        <div class="header">
+            <div class="avatar">
+                <img src="https://anhdep123.com/wp-content/uploads/2020/05/%E1%BA%A3nh-c%C6%B0%E1%BB%9Di-ch%E1%BA%BF.jpg" alt="" />
+            </div>
+            <div class="title" style="display:flex">
+                <p>@user.Nickname</p>
+                <a asp-controller="User" asp-action="Logout">Logout</a>
+            </div>
+        </div>
+        <div class="menu">
+            <ul>
+                <li>Matches</li>
+                <li class="active">Messages</li>
+            </ul>
+        </div>
+        <h1>@(ViewContext.RouteData.Values["id"])</h1>
+        @foreach (var item in conversations)
+        {
+            UserAccount toUser = item.UserAccountIdCreator == userId ? getUserById(item.UserAccountId2) : getUserById(item.UserAccountIdCreator);
+            <div class="messages" style="cursor: pointer; background-color: @(toUser.Id == toId?"#D3D3D3":"#f5f7fa")" onclick="redirectToMessage(@(toUser.Id));">
+                <div class="avatar">
+                    <img src="https://s.memehay.com/files/posts/20200816/1bf9900c6546496b7ac7366e9cbb5f8fcho-vang-do-mat-xau-ho.jpg" alt="" />
+                </div>
+                <div class="message">
+                    <div class="user">@(toUser.Name)</div>
+                    @{ Message LastMessage = db.Messages.Where(m => m.ConversationId == item.Id).OrderByDescending(m => m.CreateTime).FirstOrDefault();}
+                    <div class="text">@(LastMessage==null? "Say Bruh" : LastMessage.Content)</div>
+                </div>
+            </div>
+        }
+    </div>
+    <div style="margin: 20%">
+        <div class="row">&nbsp;</div>
+        <div class="row">
+            <div class="col-2">Message</div>
+            <div class="col-4"><input type="text" id="messageInput" /></div>
+        </div>
+        <div class="row">&nbsp;</div>
+        <div class="row">
+            <div class="col-6">
+                <input type="button" id="sendButton" value="Send Message" />
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <hr />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-6">
+            <ul id="messagesList">
+                @foreach (var item in messages)
+                {
+                    <li>@(item.UserAccountIdSender): @(item.Content)</li>
+                }
+            </ul>
+        </div>
+    </div>
+</div>
+    <script src="~/js/signalr/dist/browser/signalr.js"></script>
+    <script>
+    "use strict";
+    var connection = new signalR.HubConnectionBuilder().withUrl("/message").build();
+
+    //Disable send button until connection is established
+    connection.start().then(result => {
+        console.log("SignalR is now connected")
+    }).then(result => {
+            connection.invoke("AddToGroup", @(conversationId), @(userId)).catch(function (err) {
+            return console.error(err.toString());
+    });
+    });
+    connection.on("ReceiveMessage", function (userId, message) {
+        var li = document.createElement("li");
+        document.getElementById("messagesList").appendChild(li);
+        // We can assign user-supplied strings to an element's textContent because it
+        // is not interpreted as markup. If you're assigning in any other way, you
+        // should be aware of possible script injection concerns.
+        li.textContent = `${userId}: ${message}`;
+    });
+
+    document.getElementById("sendButton").addEventListener("click", function (event) {
+        var message = document.getElementById("messageInput").value;
+        connection.invoke("SendMessageToGroup", @(conversationId), message,  @(userId)).catch(function (err) {
+            return console.error(err.toString());
+        });
+        event.preventDefault();
+    });
+
+    </script>

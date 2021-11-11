@@ -1,11 +1,12 @@
 ﻿using Dodder.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using System;
 
 namespace Dodder.Controllers
 {
@@ -19,17 +20,27 @@ namespace Dodder.Controllers
         //}
 
         PRN211Context db = new PRN211Context();
-        public IActionResult Dodder()
+        public IActionResult Dodder(int id)
         {
-            return View();
-        }
-        public IActionResult Admin()
-        {
-            return View();
+            if (HttpContext.Session.GetString("UserSession") == null)
+            {
+                return View();
+            }
+            else
+            {
+                return RedirectToAction("Index", "Match");
+            }
         }
         public IActionResult Safety()
         {
-            return View();
+            if (HttpContext.Session.GetString("UserSession") == null)
+            {
+                return View();
+            }
+            else
+            {
+                return RedirectToAction("Index", "Match");
+            }
         }
     }
 }
