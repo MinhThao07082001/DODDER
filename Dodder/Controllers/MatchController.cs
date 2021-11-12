@@ -14,16 +14,6 @@ namespace Dodder.Controllers
         PRN211Context db = new PRN211Context();
         public IActionResult Index()
         {
-
-            Int32 UserId = (int)HttpContext.Session.GetInt32("id");
-            List<Conversation> conversations = db.Conversations.Where(c => c.UserAccountIdCreator == UserId || c.UserAccountId2 == UserId).ToList();
-            ViewBag.ListMessage = conversations;
-            ViewBag.UserId = UserId;
-            ViewBag.ListUsers = db.UserAccounts
-                .Where(u => u.Id != UserId && //khac chinh minh
-                       db.UserDislikes.Where(d => d.UserAccountId == UserId && d.UserAccountIdDislike == u.Id).FirstOrDefault() == null &&  //user kia khong nam trong bang dislike va like cua user nay
-                       db.UserLikes.Where(l => l.UserAccountId == UserId && l.UserAccountIdLike == u.Id).FirstOrDefault() == null).ToList();
-            return View();
             if (HttpContext.Session.GetString("UserSession") != null)
             {
                 TempData["user"] = JsonConvert.DeserializeObject<UserAccount>(HttpContext.Session.GetString("User"));
@@ -74,25 +64,6 @@ namespace Dodder.Controllers
         }
         public IActionResult Message(int id = 0)
         {
-            Int32 UserId = (int)HttpContext.Session.GetInt32("id");
-            //neu id =0 chi hien thi ra list danh sach nguoi nhan tin
-            //lay danh sach phong
-            List<Conversation> conversations = db.Conversations.Where(c => c.UserAccountIdCreator == UserId || c.UserAccountId2 == UserId).ToList();
-            ViewBag.ListMessage = conversations;
-            ViewBag.UserId = UserId;
-            ViewBag.toId = id;
-            if (id > 0)
-            {
-                Conversation conversation = db.Conversations.Where(c => c.UserAccountIdCreator == UserId && c.UserAccountId2 == id ||
-                c.UserAccountIdCreator == id && c.UserAccountId2 == UserId).FirstOrDefault();
-                if(conversation != null)
-                {
-                    ViewBag.ConversationID = conversation.Id;
-                    ViewBag.UserID = UserId;
-                    ViewBag.Messages = db.Messages.Where(m => m.ConversationId == conversation.Id).ToList();
-                }
-            }
-            return View();
             if (HttpContext.Session.GetString("UserSession") != null)
             {
                 TempData["user"] = JsonConvert.DeserializeObject<UserAccount>(HttpContext.Session.GetString("User"));
