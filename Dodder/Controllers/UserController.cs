@@ -81,9 +81,19 @@ namespace Dodder.Controllers
             IRestResponse response = client.Execute(request);
             dynamic res = JsonConvert.DeserializeObject(response.Content);
             dynamic item = res.data[0];
-            user.Latitude = item.latitude;
-            user.Longitude = item.longitude;
-            user.Address = item.name + ", " + item.county + ", " + item.region;
+            try
+            {
+                user.Latitude = item.latitude;
+                user.Longitude = item.longitude;
+                user.Address = item.name + ", " + item.county + ", " + item.region;
+            }
+            catch (Exception)
+            {
+                user.Latitude = 0;
+                user.Longitude = 0;
+            }
+            
+            
             HttpContext.Session.SetString("User", JsonConvert.SerializeObject(user));
             db.UserAccounts.Update(user);
             db.SaveChanges();

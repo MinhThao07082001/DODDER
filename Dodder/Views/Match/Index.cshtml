@@ -26,7 +26,8 @@
         return age;
     }
     UserAccount thisUser = getUserById(UserId);
-    double getDistanceFromLatLonInKm(double lat1, double lon1, double lat2, double lon2) {
+    double getDistanceFromLatLonInKm(double lat1, double lon1, double lat2, double lon2)
+    {
         var R = 6371; // Radius of the earth in km
         var dLat = deg2rad(lat2 - lat1); // deg2rad below
         var dLon = deg2rad(lon2 - lon1);
@@ -38,11 +39,25 @@
             Math.Sin(dLon / 2);
         var c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
         var d = R * c; // Distance in km
-        return Math.Round(d,1);
+        return Math.Round(d, 1);
     }
 
-    double deg2rad(double deg) {
+    double deg2rad(double deg)
+    {
         return deg * (Math.PI / 180);
+    }
+    bool isOverLike()
+    {
+        int count = 0;
+        foreach (var item in db.UserLikes.ToList())
+        {
+            DateTime d1 = (DateTime)DateTime.Now;
+            if (item.UserAccountId == UserId && d1.ToShortDateString() == DateTime.Now.ToShortDateString())
+            {
+                count++;
+            }
+        }
+        return count > 10;
     }
 }
 <div class="scr3" style="display: none">
@@ -125,14 +140,14 @@
             <div class="tinder--cards" style="padding: 0; margin: 0; align-items: center; margin-right:20%;">
                 @foreach (var item in userAccounts)
                 {
-                <div class="tinder--card" style="height: 720px; padding: 0">
-                    <input type="hidden" value="@(item.Id)" />
-                    <img style="position: relative; height: 100%" src="https://images.unsplash.com/photo-1604311795833-25e1d5c128c6?ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8OSUzQTE2fGVufDB8fDB8fA%3D%3D&ixlib=rb-1.2.1&w=1000&q=80" />
-                    <h3 style="position: absolute; bottom: 120px; margin-left: 4px;">@(item.Name)</h3>
-                    <p style="position: absolute; bottom: 100px; margin-left: 4px;">@(item.Address)</p>
-                    <p style="position: absolute; bottom: 80px; margin-left: 4px;">@(getAgeByDate(item.Dob))</p>
-                    <p style="position: absolute; bottom: 60px; margin-left: 4px;">@(getDistanceFromLatLonInKm(thisUser.Latitude, thisUser.Longitude, item.Latitude, item.Longitude)) km</p>
-                </div>
+                    <div class="tinder--card" style="height: 720px; padding: 0">
+                        <input type="hidden" value="@(item.Id)" />
+                        <img style="position: relative; height: 100%" src="https://images.unsplash.com/photo-1604311795833-25e1d5c128c6?ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8OSUzQTE2fGVufDB8fDB8fA%3D%3D&ixlib=rb-1.2.1&w=1000&q=80" />
+                        <h3 style="position: absolute; bottom: 120px; margin-left: 4px;">@(item.Name)</h3>
+                        <p style="position: absolute; bottom: 100px; margin-left: 4px;">@(item.Address)</p>
+                        <p style="position: absolute; bottom: 80px; margin-left: 4px;">@(getAgeByDate(item.Dob))</p>
+                        <p style="position: absolute; bottom: 60px; margin-left: 4px;">@(getDistanceFromLatLonInKm(thisUser.Latitude, thisUser.Longitude, item.Latitude, item.Longitude)) km</p>
+                    </div>
                 }
                 <div class="tinder--buttons" style="z-index: 9999999; display: flex; bottom: 120px; margin-top: 40%;">
                     <button id="nope" style="cursor: url(https://cur.cursors-4u.net/games/gam-14/gam1338.cur), auto !important;"><i style="color: cornflowerblue; " class="fa fa-times"></i></button>
@@ -260,12 +275,22 @@
                     "px) rotate(" +
                     rotate +
                     "deg)";
+
                 if (event.deltaX < 0) {
                     SendData(id, false)
+                    initCards();
                 } else {
-                    SendData(id, true)
+                    if ("@(isOverLike())" === "True") {
+                        event.target.style.transform = "";
+                    } else {
+                        SendData(id, true)
+                        initCards();
+                    }
+
                 }
-                initCards();
+
+
+
             }
         });
     });
@@ -279,15 +304,23 @@
 
             var card = cards[0];
             var id = Number(card.childNodes[1].value);
-            card.classList.add("removed");
-
+            if ("@(isOverLike())" !== "True") {
+                card.classList.add("removed");
+            }
             if (love) {
                 card.style.transform =
                     "translate(" + moveOutWidth + "px, -100px) rotate(-30deg)";
-                SendData(id, true)
 
-                initCards();
+                if ("@(isOverLike())" !== "True") {
+                    SendData(id, true)
+                    initCards();
+                }
             } else {
+                    if ("@(isOverLike())" === "True") {
+                card.classList.add("removed");
+            }
+               
+
                 card.style.transform =
                     "translate(-" + moveOutWidth + "px, -100px) rotate(30deg)";
                 SendData(id, false)
