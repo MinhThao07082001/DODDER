@@ -3,6 +3,7 @@
 @{
     ViewData["Title"] = "Test";
     Layout = "_MatchLayout.cshtml";
+    var user = TempData["user"] as UserAccount;
 }
 @{
     PRN211Context db = new PRN211Context();
@@ -26,8 +27,7 @@
         return age;
     }
     UserAccount thisUser = getUserById(UserId);
-    double getDistanceFromLatLonInKm(double lat1, double lon1, double lat2, double lon2)
-    {
+    double getDistanceFromLatLonInKm(double lat1, double lon1, double lat2, double lon2) {
         var R = 6371; // Radius of the earth in km
         var dLat = deg2rad(lat2 - lat1); // deg2rad below
         var dLon = deg2rad(lon2 - lon1);
@@ -58,6 +58,10 @@
             }
         }
         return count > 10;
+    }
+
+    double deg2rad(double deg) {
+        return deg * (Math.PI / 180);
     }
 }
 <div class="scr3" style="display: none">
@@ -108,7 +112,10 @@
             <div class="avatar">
                 <img src="https://anhdep123.com/wp-content/uploads/2020/05/%E1%BA%A3nh-c%C6%B0%E1%BB%9Di-ch%E1%BA%BF.jpg" alt="" />
             </div>
-            <div class="title">Anonymous</div>
+            <div class="title" style="display:flex">
+                <p>@user.Nickname</p>
+                <a asp-controller="User" asp-action="Logout">Logout</a>
+            </div>
         </div>
         <div class="menu">
             <ul>
@@ -275,7 +282,6 @@
                     "px) rotate(" +
                     rotate +
                     "deg)";
-
                 if (event.deltaX < 0) {
                     SendData(id, false)
                     initCards();

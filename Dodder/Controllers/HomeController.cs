@@ -27,11 +27,25 @@ namespace Dodder.Controllers
         }
         public IActionResult Admin()
         {
-            return View();
+            if (HttpContext.Session.GetString("UserSession") == null)
+            {
+                return View();
+            }
+            else
+            {
+                return RedirectToAction("Index", "Match");
+            }
         }
         public IActionResult Safety()
         {
-            return View();
+            if (HttpContext.Session.GetString("UserSession") == null)
+            {
+                return View();
+            }
+            else
+            {
+                return RedirectToAction("Index", "Match");
+            }
         }
     }
 }

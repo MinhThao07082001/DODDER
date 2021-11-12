@@ -14,24 +14,19 @@ namespace Dodder.Controllers
     public class UserController : Controller
     {
         PRN211Context db = new PRN211Context();
-        public IActionResult Home()
-        {
-            if (HttpContext.Session.GetString("UserSession") != null)
-            {
-                TempData["user"] = JsonConvert.DeserializeObject<UserAccount>(HttpContext.Session.GetString("User"));
-                return View();
-            }
-            else
-            {
-                return RedirectToAction("Login", "User");
-            }
-        }
 
         [HttpGet]
         public IActionResult Register()
         {
-            ViewBag.Genders = db.Genders.ToList();
-            return View();
+            if (HttpContext.Session.GetString("UserSession") == null)
+            {
+                ViewBag.Genders = db.Genders.ToList();
+                return View();
+            }
+            else
+            {
+                return RedirectToAction("Index", "Match");
+            }
         }
         [HttpPost]
         public IActionResult Register(UserAccount user)
@@ -54,8 +49,15 @@ namespace Dodder.Controllers
         [HttpGet]
         public IActionResult Login()
         {
-            UserAccount user = new UserAccount();
-            return View(user);
+            if (HttpContext.Session.GetString("UserSession") == null)
+            {
+                UserAccount user = new UserAccount();
+                return View(user);
+            }
+            else
+            {
+                return RedirectToAction("Index", "Match");
+            }
         }
         [HttpPost]
         public IActionResult Login(UserAccount user)
@@ -68,6 +70,12 @@ namespace Dodder.Controllers
                 HttpContext.Session.SetInt32("id", obj.Id);
                 return RedirectToAction("Index", "Match");
             }else
+                HttpContext.Session.SetString("User", JsonConvert.SerializeObject(user));
+                HttpContext.Session.SetString("UserSession", JsonConvert.SerializeObject(user));
+                HttpContext.Session.SetInt32("id", obj.Id);
+                return RedirectToAction("Index", "Match");
+            }
+            else
             {
                 TempData["error"] = "Error";
                 return View(user);
@@ -92,8 +100,6 @@ namespace Dodder.Controllers
                 user.Latitude = 0;
                 user.Longitude = 0;
             }
-            
-            
             HttpContext.Session.SetString("User", JsonConvert.SerializeObject(user));
             db.UserAccounts.Update(user);
             db.SaveChanges();
