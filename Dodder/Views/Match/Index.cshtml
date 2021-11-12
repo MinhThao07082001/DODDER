@@ -46,19 +46,6 @@
     {
         return deg * (Math.PI / 180);
     }
-    bool isOverLike()
-    {
-        int count = 0;
-        foreach (var item in db.UserLikes.ToList())
-        {
-            DateTime d1 = (DateTime)DateTime.Now;
-            if (item.UserAccountId == UserId && d1.ToShortDateString() == DateTime.Now.ToShortDateString())
-            {
-                count++;
-            }
-        }
-        return count > 10;
-    }
 }
 <div class="scr3" style="display: none">
     <div class="container">
@@ -81,7 +68,32 @@
                            style="width:250px;height:250px">
                 </lord-icon>
                 <p>Congratulation. Send a message now.</p>
-                <button data-hystmodal="#modalLong" id="btnMsg">Anh ban a</button>
+                <button data-hystmodal="#modalLong" id="btnMsg">Send message</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="scr3" style="display: none">
+    <div class="container">
+        <div class="scr3__wrap flexi">
+            <button id="vjpBtn" class="button demobuttons" data-hystmodal="#popupVjp"></button>
+        </div>
+    </div>
+</div>
+<div class="hystmodal" id="popupVjp" aria-hidden="true">
+    <div class="hystmodal__wrap">
+        <div class="hystmodal__window" role="dialog" aria-modal="true">
+            <button class="hystmodal__close" data-hystclose></button>
+            <div class="hystmodal__styled">
+                <div class="h1">Nạp lần đầu đi my fen.</div>
+                <lord-icon src="https://cdn.lordicon.com/qhviklyi.json"
+                           trigger="loop"
+                           colors="primary:#121331,secondary:#08a88a"
+                           stroke="70"
+                           style="width:250px;height:250px">
+                </lord-icon>
+                <p>Nap vjp để vjp pr0</p>
+                <button data-hystmodal="#modalLong" id="btnMsg">Nap vjp</button>
             </div>
         </div>
     </div>
@@ -162,6 +174,7 @@
 </div>
 <script src="~/js/hystmodal.min.js"></script>
 <script>
+    var isOverLoad = false;
     const myModal = new HystModal({
         // for dynamic init() of modals
         // linkAttributeName: false,
@@ -255,6 +268,7 @@
             //Tha chuot, giu nguyen
             if (keep) {
                 event.target.style.transform = "";
+                alert()
             } else {
                 var endX = Math.max(
                     Math.abs(event.velocityX) * moveOutWidth,
@@ -280,8 +294,9 @@
                     SendData(id, false)
                     initCards();
                 } else {
-                    if ("@(isOverLike())" === "True") {
+                    if (isOverLoad) {
                         event.target.style.transform = "";
+                        document.getElementById("vjpBtn").click();
                     } else {
                         SendData(id, true)
                         initCards();
@@ -304,23 +319,23 @@
 
             var card = cards[0];
             var id = Number(card.childNodes[1].value);
-            if ("@(isOverLike())" !== "True") {
+            if (!isOverLoad) {
                 card.classList.add("removed");
             }
             if (love) {
                 card.style.transform =
                     "translate(" + moveOutWidth + "px, -100px) rotate(-30deg)";
 
-                if ("@(isOverLike())" !== "True") {
+                if (!isOverLoad) {
                     SendData(id, true)
                     initCards();
+                } else {
+                    document.getElementById("vjpBtn").click();
                 }
             } else {
-                    if ("@(isOverLike())" === "True") {
+                if (isOverLoad) {
                 card.classList.add("removed");
             }
-               
-
                 card.style.transform =
                     "translate(-" + moveOutWidth + "px, -100px) rotate(30deg)";
                 SendData(id, false)
@@ -608,6 +623,10 @@
                         window.location.href = '@Url.Action("Message", "Match")?id=' + id;
                     });
                     document.getElementById("matchBtn").click();
+                }
+                if (data === "OverLike") {
+                    isOverLoad = true;
+                    document.getElementById("vjpBtn").click();
                 }
             },
             error: function (ex) {

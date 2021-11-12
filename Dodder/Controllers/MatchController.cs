@@ -30,14 +30,22 @@ namespace Dodder.Controllers
             string notification = "";
             if (love)
             {
-                db.UserLikes.Add(new UserLike() { UserAccountId = UserId, UserAccountIdLike = id });
-                //Neu duoc liek
-                if (db.UserLikes.Where(u => u.UserAccountId == id && u.UserAccountIdLike == UserId).FirstOrDefault() != null)
+                if (isOverLike(UserId))
                 {
-                    notification = "Matched";
-                    //tao phong chat
-                    db.Conversations.Add(new Conversation() { UserAccountIdCreator = UserId, UserAccountId2 = id });
+                    notification = "OverLike";
                 }
+                else
+                {
+                    db.UserLikes.Add(new UserLike() { UserAccountId = UserId, UserAccountIdLike = id });
+                    //Neu duoc liek
+                    if (db.UserLikes.Where(u => u.UserAccountId == id && u.UserAccountIdLike == UserId).FirstOrDefault() != null)
+                    {
+                        notification = "Matched";
+                        //tao phong chat
+                        db.Conversations.Add(new Conversation() { UserAccountIdCreator = UserId, UserAccountId2 = id });
+                    }
+                }
+
             }
             else
             {
@@ -67,6 +75,19 @@ namespace Dodder.Controllers
                 }
             }
             return View();
+        }
+        bool isOverLike(int UserId)
+        {
+            int count = 0;
+            foreach (var item in db.UserLikes.ToList())
+            {
+                DateTime d1 = (DateTime)DateTime.Now;
+                if (item.UserAccountId == UserId && d1.ToShortDateString() == DateTime.Now.ToShortDateString())
+                {
+                    count++;
+                }
+            }
+            return count >= 10;
         }
     }
 }
