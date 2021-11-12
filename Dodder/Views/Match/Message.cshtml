@@ -1,6 +1,7 @@
 ﻿@{
     ViewData["Title"] = "Message";
     Layout = "_MatchLayout.cshtml";
+    var user = TempData["user"] as UserAccount;
 }
 @{ var conversationId = (int)ViewBag.ConversationID;
     var userId = (int) ViewBag.UserId;
@@ -18,7 +19,10 @@
             <div class="avatar">
                 <img src="https://anhdep123.com/wp-content/uploads/2020/05/%E1%BA%A3nh-c%C6%B0%E1%BB%9Di-ch%E1%BA%BF.jpg" alt="" />
             </div>
-            <div class="title">Anonymous</div>
+            <div class="title" style="display:flex">
+                <p>@user.Nickname</p>
+                <a asp-controller="User" asp-action="Logout">Logout</a>
+            </div>
         </div>
         <div class="menu">
             <ul>
