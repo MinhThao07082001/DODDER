@@ -22,6 +22,11 @@ namespace Dodder.Controllers
         PRN211Context db = new PRN211Context();
         public IActionResult Dodder(int id)
         {
+            
+            return View();
+        }
+        public IActionResult Admin()
+        {
             if (HttpContext.Session.GetString("UserSession") == null)
             {
                 return View();

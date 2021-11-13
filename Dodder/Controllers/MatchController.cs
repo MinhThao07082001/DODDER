@@ -16,7 +16,7 @@ namespace Dodder.Controllers
         {
             if (HttpContext.Session.GetString("UserSession") != null)
             {
-                TempData["user"] = JsonConvert.DeserializeObject<UserAccount>(HttpContext.Session.GetString("User"));
+               // TempData["user"] = JsonConvert.DeserializeObject<UserAccount>(HttpContext.Session.GetString("User"));
                 Int32 UserId = (int)HttpContext.Session.GetInt32("id");
                 List<Conversation> conversations = db.Conversations.Where(c => c.UserAccountIdCreator == UserId || c.UserAccountId2 == UserId).ToList();
                 ViewBag.ListMessage = conversations;
@@ -38,14 +38,22 @@ namespace Dodder.Controllers
             string notification = "";
             if (love)
             {
-                db.UserLikes.Add(new UserLike() { UserAccountId = UserId, UserAccountIdLike = id });
-                //Neu duoc liek
-                if (db.UserLikes.Where(u => u.UserAccountId == id && u.UserAccountIdLike == UserId).FirstOrDefault() != null)
+                if (isOverLike(UserId))
                 {
-                    notification = "Matched";
-                    //tao phong chat
-                    db.Conversations.Add(new Conversation() { UserAccountIdCreator = UserId, UserAccountId2 = id });
+                    notification = "OverLike";
                 }
+                else
+                {
+                    db.UserLikes.Add(new UserLike() { UserAccountId = UserId, UserAccountIdLike = id });
+                    //Neu duoc liek
+                    if (db.UserLikes.Where(u => u.UserAccountId == id && u.UserAccountIdLike == UserId).FirstOrDefault() != null)
+                    {
+                        notification = "Matched";
+                        //tao phong chat
+                        db.Conversations.Add(new Conversation() { UserAccountIdCreator = UserId, UserAccountId2 = id });
+                    }
+                }
+
             }
             else
             {
@@ -83,6 +91,19 @@ namespace Dodder.Controllers
             {
                 return RedirectToAction("Login", "User");
             }
+        }
+        bool isOverLike(int UserId)
+        {
+            int count = 0;
+            foreach (var item in db.UserLikes.ToList())
+            {
+                DateTime d1 = (DateTime)item.CreateTime;
+                if (item.UserAccountId == UserId && d1.ToShortDateString() == DateTime.Now.ToShortDateString())
+                {
+                    count++;
+                }
+            }
+            return count >= 10;
         }
     }
 }

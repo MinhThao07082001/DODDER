@@ -13,6 +13,39 @@
     {
         return db.UserAccounts.Where(u => u.Id == id).FirstOrDefault();
     }
+    int getAgeByDate(DateTime date)
+    {
+        // Save today's date.
+        var today = DateTime.Today;
+
+        // Calculate the age.
+        var age = today.Year - date.Year;
+
+        // Go back to the year in which the person was born in case of a leap year
+        if (date.Date > today.AddYears(-age)) age--;
+        return age;
+    }
+    UserAccount thisUser = getUserById(UserId);
+    double getDistanceFromLatLonInKm(double lat1, double lon1, double lat2, double lon2)
+    {
+        var R = 6371; // Radius of the earth in km
+        var dLat = deg2rad(lat2 - lat1); // deg2rad below
+        var dLon = deg2rad(lon2 - lon1);
+        var a =
+            Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
+            Math.Cos(deg2rad(lat1)) *
+            Math.Cos(deg2rad(lat2)) *
+            Math.Sin(dLon / 2) *
+            Math.Sin(dLon / 2);
+        var c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
+        var d = R * c; // Distance in km
+        return Math.Round(d, 1);
+    }
+
+    double deg2rad(double deg)
+    {
+        return deg * (Math.PI / 180);
+    }
 }
 <div class="scr3" style="display: none">
     <div class="container">
@@ -21,7 +54,6 @@
         </div>
     </div>
 </div>
-
 <div class="hystmodal" id="modalSimple" aria-hidden="true">
     <div class="hystmodal__wrap">
         <div class="hystmodal__window" role="dialog" aria-modal="true">
@@ -35,7 +67,32 @@
                            style="width:250px;height:250px">
                 </lord-icon>
                 <p>Congratulation. Send a message now.</p>
-                <button data-hystmodal="#modalLong" id="btnMsg">Anh ban a</button>
+                <button data-hystmodal="#modalLong" id="btnMsg">Send message</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="scr3" style="display: none">
+    <div class="container">
+        <div class="scr3__wrap flexi">
+            <button id="vjpBtn" class="button demobuttons" data-hystmodal="#popupVjp"></button>
+        </div>
+    </div>
+</div>
+<div class="hystmodal" id="popupVjp" aria-hidden="true">
+    <div class="hystmodal__wrap">
+        <div class="hystmodal__window" role="dialog" aria-modal="true">
+            <button class="hystmodal__close" data-hystclose></button>
+            <div class="hystmodal__styled">
+                <div class="h1">Nạp lần đầu đi my fen.</div>
+                <lord-icon src="https://cdn.lordicon.com/qhviklyi.json"
+                           trigger="loop"
+                           colors="primary:#121331,secondary:#08a88a"
+                           stroke="70"
+                           style="width:250px;height:250px">
+                </lord-icon>
+                <p>Nap vjp để vjp pr0</p>
+                <button data-hystmodal="#modalLong" id="btnMsg">Nap vjp</button>
             </div>
         </div>
     </div>
@@ -94,12 +151,15 @@
             <div class="tinder--cards" style="padding: 0; margin: 0; align-items: center; margin-right:20%;">
                 @foreach (var item in userAccounts)
                 {
-                    <div class="tinder--card" style="height: 720px; padding: 0">
-                        <input type="hidden" value="@(item.Id)" />
-                        <img style="position: relative; height: 100%" src="https://images.unsplash.com/photo-1604311795833-25e1d5c128c6?ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8OSUzQTE2fGVufDB8fDB8fA%3D%3D&ixlib=rb-1.2.1&w=1000&q=80" />
-                        <h3 style="position: absolute; bottom: 120px; margin-left: 4px;">@(item.Name)</h3>
-                        <p style="position: absolute; bottom: 100px; margin-left: 4px;">@(item.Password)</p>
-                    </div>
+                <div class="tinder--card" style="height: 720px; padding: 0">
+                    <input type="hidden" value="@(item.Id)" />
+                    <img style="position: relative; height: 100%" src="https://images.unsplash.com/photo-1604311795833-25e1d5c128c6?ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8OSUzQTE2fGVufDB8fDB8fA%3D%3D&ixlib=rb-1.2.1&w=1000&q=80" />
+                    <h3 style="position: absolute; bottom: 120px; margin-left: 4px;">@(item.Name)</h3>
+                    <p style="position: absolute; bottom: 100px; margin-left: 4px;">@(item.Address)</p>
+                    <p style="position: absolute; bottom: 80px; margin-left: 4px;">@(getAgeByDate(item.Dob))</p>
+                    <p style="position: absolute; bottom: 60px; margin-left: 4px;">@(getDistanceFromLatLonInKm(thisUser.Latitude, thisUser.Longitude, item.Latitude, item.Longitude)) km</p>
+
+                </div>
                 }
                 <div class="tinder--buttons"  style="z-index: 9999999; display: flex; bottom: 120px; margin-top: 40%;">
                     <button id="nope" style="cursor: url(https://cur.cursors-4u.net/games/gam-14/gam1338.cur), auto !important;"><i style="color: cornflowerblue; " class="fa fa-times"></i></button>
@@ -114,6 +174,7 @@
 </div>
 <script src="~/js/hystmodal.min.js"></script>
 <script>
+    var isOverLoad = false;
     const myModal = new HystModal({
         // for dynamic init() of modals
         // linkAttributeName: false,
@@ -227,12 +288,23 @@
                     "px) rotate(" +
                     rotate +
                     "deg)";
+
                 if (event.deltaX < 0) {
                     SendData(id, false)
+                    initCards();
                 } else {
-                    SendData(id, true)
+                    if (isOverLoad) {
+                        event.target.style.transform = "";
+                        document.getElementById("vjpBtn").click();
+                    } else {
+                        SendData(id, true)
+                        initCards();
+                    }
+
                 }
-                initCards();
+
+
+
             }
         });
     });
@@ -246,15 +318,23 @@
 
             var card = cards[0];
             var id = Number(card.childNodes[1].value);
-            card.classList.add("removed");
-
+            if (!isOverLoad) {
+                card.classList.add("removed");
+            }
             if (love) {
                 card.style.transform =
                     "translate(" + moveOutWidth + "px, -100px) rotate(-30deg)";
-                SendData(id, true)
 
-                initCards();
+                if (!isOverLoad) {
+                    SendData(id, true)
+                    initCards();
+                } else {
+                    document.getElementById("vjpBtn").click();
+                }
             } else {
+                if (isOverLoad) {
+                    card.classList.add("removed");
+                }
                 card.style.transform =
                     "translate(-" + moveOutWidth + "px, -100px) rotate(30deg)";
                 SendData(id, false)
@@ -542,6 +622,10 @@
                         window.location.href = '@Url.Action("Message", "Match")?id=' + id;
                     });
                     document.getElementById("matchBtn").click();
+                }
+                if (data === "OverLike") {
+                    isOverLoad = true;
+                    document.getElementById("vjpBtn").click();
                 }
             },
             error: function (ex) {
