@@ -22,6 +22,8 @@
             <div class="title" style="display:flex">
                 <p>@user.Nickname</p>
                 <a asp-controller="User" asp-action="Logout">Logout</a>
+                <a asp-action="Delete" asp-controller="User" asp-route-id="@user.Id" style="color:white;text-decoration:none">Delete</a>
+
             </div>
         </div>
         <div class="menu">
