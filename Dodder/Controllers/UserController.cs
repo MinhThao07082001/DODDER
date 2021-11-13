@@ -80,5 +80,17 @@ namespace Dodder.Controllers
             //}
 
         }
+
+        public ActionResult Delete(int? id)
+        {
+
+            var user = db.UserAccounts.Find(id);
+            db.UserAccounts.Remove(user);
+            db.SaveChanges();
+            HttpContext.Session.Remove("UserSession");
+            return RedirectToAction("Login");
+
+
+        }
     }
 }
