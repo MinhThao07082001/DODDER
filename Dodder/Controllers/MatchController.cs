@@ -16,7 +16,7 @@ namespace Dodder.Controllers
         {
             if (HttpContext.Session.GetString("UserSession") != null)
             {
-                TempData["user"] = JsonConvert.DeserializeObject<UserAccount>(HttpContext.Session.GetString("User"));
+               // TempData["user"] = JsonConvert.DeserializeObject<UserAccount>(HttpContext.Session.GetString("User"));
                 Int32 UserId = (int)HttpContext.Session.GetInt32("id");
                 List<Conversation> conversations = db.Conversations.Where(c => c.UserAccountIdCreator == UserId || c.UserAccountId2 == UserId).ToList();
                 ViewBag.ListMessage = conversations;
@@ -97,7 +97,7 @@ namespace Dodder.Controllers
             int count = 0;
             foreach (var item in db.UserLikes.ToList())
             {
-                DateTime d1 = (DateTime)DateTime.Now;
+                DateTime d1 = (DateTime)item.CreateTime;
                 if (item.UserAccountId == UserId && d1.ToShortDateString() == DateTime.Now.ToShortDateString())
                 {
                     count++;
