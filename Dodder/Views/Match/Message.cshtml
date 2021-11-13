@@ -4,10 +4,10 @@
     var user = TempData["user"] as UserAccount;
 }
 @{ var conversationId = (int)ViewBag.ConversationID;
-    var userId = (int) ViewBag.UserId;
+    var userId = (int)ViewBag.UserId;
     PRN211Context db = new PRN211Context();
     List<Message> messages = (List<Message>)ViewBag.Messages;
-    int? toId = (int) ViewBag.toId;
+    int? toId = (int)ViewBag.toId;
     List<Conversation> conversations = (List<Conversation>)ViewBag.ListMessage;
     UserAccount getUserById(int? id)
     {
@@ -17,16 +17,19 @@
     <div class="side">
         <div class="header">
             <div class="avatar">
-                <img src="https://anhdep123.com/wp-content/uploads/2020/05/%E1%BA%A3nh-c%C6%B0%E1%BB%9Di-ch%E1%BA%BF.jpg" alt="" />
+                <img src="@user.Photo" alt="" />
             </div>
             <div class="title" style="display:flex">
-                <p>@user.Nickname</p>
-                <a asp-controller="User" asp-action="Logout">Logout</a>
+                <div><p>@user.Name</p></div>&emsp;&emsp;&emsp;&emsp;&emsp;
+                <div>
+                    <a asp-action="Delete" asp-controller="User" asp-route-id="@user.Id" style="color:white;text-decoration:none">Delete</a>
+                    <a asp-controller="User" asp-action="Logout" style="color:white;text-decoration:none">Logout</a>
+                </div>
             </div>
         </div>
         <div class="menu">
             <ul>
-                <li>Matches</li>
+                <li><a asp-controller="Match" asp-action="Index" style="color:black;text-decoration:none">Matches</a></li>
                 <li class="active">Messages</li>
             </ul>
         </div>
@@ -36,7 +39,7 @@
             UserAccount toUser = item.UserAccountIdCreator == userId ? getUserById(item.UserAccountId2) : getUserById(item.UserAccountIdCreator);
             <div class="messages" style="cursor: pointer; background-color: @(toUser.Id == toId?"#D3D3D3":"#f5f7fa")" onclick="redirectToMessage(@(toUser.Id));">
                 <div class="avatar">
-                    <img src="https://s.memehay.com/files/posts/20200816/1bf9900c6546496b7ac7366e9cbb5f8fcho-vang-do-mat-xau-ho.jpg" alt="" />
+                    <img src="@(toUser.Photo)" alt="" />
                 </div>
                 <div class="message">
                     <div class="user">@(toUser.Name)</div>
@@ -75,8 +78,8 @@
         </div>
     </div>
 </div>
-    <script src="~/js/signalr/dist/browser/signalr.js"></script>
-    <script>
+<script src="~/js/signalr/dist/browser/signalr.js"></script>
+<script>
     "use strict";
     var connection = new signalR.HubConnectionBuilder().withUrl("/message").build();
 
@@ -105,4 +108,4 @@
         event.preventDefault();
     });
 
-    </script>
+</script>

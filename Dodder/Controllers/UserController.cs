@@ -14,8 +14,6 @@ namespace Dodder.Controllers
     public class UserController : Controller
     {
         PRN211Context db = new PRN211Context();
-
-        [HttpGet]
         public IActionResult Register()
         {
             if (HttpContext.Session.GetString("UserSession") == null)
@@ -36,6 +34,7 @@ namespace Dodder.Controllers
             {
                 db.UserAccounts.Add(user);
                 db.SaveChanges();
+                TempData["alert"] = "Alert";
                 return RedirectToAction("Login");
             }
             else
@@ -52,6 +51,7 @@ namespace Dodder.Controllers
             if (HttpContext.Session.GetString("UserSession") == null)
             {
                 UserAccount user = new UserAccount();
+                ViewBag.Users = db.UserAccounts.ToList();
                 return View(user);
             }
             else
@@ -66,7 +66,7 @@ namespace Dodder.Controllers
             if (obj != null)
             {
                 updatePosition(obj, user.Latitude, user.Longitude);
-                HttpContext.Session.SetString("User", JsonConvert.SerializeObject(user));
+                HttpContext.Session.SetString("User", JsonConvert.SerializeObject(obj));
                 HttpContext.Session.SetString("UserSession", JsonConvert.SerializeObject(user));
                 HttpContext.Session.SetInt32("id", obj.Id);
                 return RedirectToAction("Index", "Match");
@@ -101,5 +101,53 @@ namespace Dodder.Controllers
             //}
 
         }
+        [HttpGet]
+        public IActionResult ForgotPassword()
+        {
+            return View("ForgotPassword");
+        }
+
+        private class NewPassword { public int CodeSend { get; set; } }
+
+        [HttpPost]
+        public IActionResult ForgotPassword(UserAccount user)
+        {
+            Random oRandom = new Random();
+            NewPassword newPassword = new NewPassword();
+            newPassword.CodeSend = oRandom.Next(10000000, 99999999);
+            using (PRN211Context db = new PRN211Context())
+            {
+                if (db.UserAccounts.Where(x => x.Email == user.Email).FirstOrDefault() != null)
+                {
+                    SendEmail sendEmail = new SendEmail();
+                    string subject = "RESET YOUR ACCOUNT DODDER";
+                    string content = "Your New Password Is : ";
+                    bool checkSendMail = sendEmail.SendEmailNewpassword(user.Email, subject, content, newPassword.CodeSend);
+                    if (checkSendMail == true)
+                    {
+                        int Id = db.UserAccounts.FirstOrDefault(t => t.Email.Contains(user.Email)).Id;
+                        var FindUserByID = db.UserAccounts.Find(Id);
+                        FindUserByID.Password = newPassword.CodeSend.ToString();
+                        db.SaveChanges();
+                        return View("Login");
+                    }
+                    else
+                    {
+                        TempData["error"] = "Error";
+                        return View("ForgotPassword");
+                    }
+                }
+                else
+                {
+                    TempData["error"] = "Error";
+                    return View("ForgotPassword");
+                }
+            }
+        }
+
+
+
+
+
     }
 }

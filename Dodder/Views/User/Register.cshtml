@@ -9,6 +9,16 @@
         alert("Email or Phone is already existed");
     </script>
 }
+<script>
+    function myFunc() {
+        document.getElementById("panel1").style.display = "none";
+        document.getElementById("panel2").style.display = "block";
+    }
+    function myFuncc() {
+        document.getElementById("panel1").style.display = "block";
+        document.getElementById("panel2").style.display = "none";
+    }
+</script>
 <div class="main">
     <canvas id="myCanvas"></canvas>
     <div class="main-w3l">
@@ -16,30 +26,54 @@
         <div class="w3layouts-main2">
             <h3>Register Now</h3>
             <form asp-controller="User" asp-action="Register" method="post">
-                <label style="color:white">Name</label>
-                <input type="text" asp-for="Name" />
-                <span asp-validation-for="Name"></span><br />
+                <div id="panel1">
+                    <label style="color:white">Name</label>
+                    <input type="text" asp-for="Name" required="" />
+                    <span asp-validation-for="Name"></span><br />
 
-                <label style="color:white">Email</label>
-                <input type="text" asp-for="Email" />
-                <span asp-validation-for="Email"></span><br />
+                    <label style="color:white">NickName</label>
+                    <input type="text" asp-for="Nickname" required="" />
+                    <span asp-validation-for="Nickname"></span><br />
 
-                <label style="color:white">Phone</label>
-                <input type="text" asp-for="Phone" />
-                <span asp-validation-for="Phone"></span><br />
+                    <label style="color:white">Email</label>
+                    <input type="text" asp-for="Email" required="" />
+                    <span asp-validation-for="Email"></span><br />
 
-                <label style="color:white">Password</label>
-                <input type="password" asp-for="Password" />
-                <span asp-validation-for="Password"></span><br />
+                    <label style="color:white">Phone</label>
+                    <input type="text" asp-for="Phone" required="" />
+                    <span asp-validation-for="Phone"></span><br />
 
-                <label style="color:white">Gender</label><br />
-                @foreach (var g in genders)
-                {
-                    <input type="radio" asp-for="GenderId" value="@g.Id" required="" /><span style="color:whitesmoke">@g.Name</span><br/>
-                }
-                <span asp-validation-for="Gender"></span><br />
+                    <label style="color:white">Password</label>
+                    <input type="password" asp-for="Password" required="" />
+                    <span asp-validation-for="Password"></span><br />
+                </div>
 
-                <input type="submit" value="Register" name="register">
+                <div id="panel2" style="display:none">
+                    <label style="color:white">Gender</label><br />
+                    @foreach (var g in genders)
+                    {
+                        <input type="radio" asp-for="GenderId" value="@g.Id" required="" /><span style="color:whitesmoke">@g.Name</span><br />
+                    }
+                    <span asp-validation-for="Gender"></span><br />
+
+                    <label style="color:white">Date of birth</label><br />
+                    <input type="date" asp-for="Dob" required="" />
+                    <span asp-validation-for="Dob"></span><br /><br />
+
+                    <label style="color:white">Your Image</label><br />
+                    <input type="file" asp-for="Photo" required="" />
+                    <span asp-validation-for="Photo"></span>
+
+                    <input type="submit" value="Register" name="register">
+                </div>
+                <div style="display:flex">
+                    <div style="margin:auto">
+                        <button onclick="myFuncc()" style="font-size:24px"> < </button>
+                    </div>
+                    <div style="margin:auto">
+                        <button onclick="myFunc()" style="font-size:24px"> > </button>
+                    </div>
+                </div><br />
             </form>
             <a asp-controller="User" asp-action="Login" style="color:white">If you already have an account, click here to log in</a>
             <a asp-controller="Home" asp-action="Dodder" style="color:white">Come back home</a>

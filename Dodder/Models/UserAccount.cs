@@ -52,7 +52,7 @@ namespace Dodder.Models
         public int? AgeTo { get; set; }
         public int? Authentication { get; set; }
         public DateTime? CreateTime { get; set; }
-
+        public string Photo { get; set; }
         public virtual Gender Gender { get; set; }
         public virtual ICollection<Conversation> ConversationUserAccountId2Navigations { get; set; }
         public virtual ICollection<Conversation> ConversationUserAccountIdCreatorNavigations { get; set; }
