@@ -158,10 +158,9 @@
                         <h3 style="position: absolute; bottom: 120px; margin-left: 4px;">@(item.Name)</h3>
                         <p style="position: absolute; bottom: 100px; margin-left: 4px;">@(item.Address)</p>
                         <p style="position: absolute; bottom: 80px; margin-left: 4px;">@(getAgeByDate(item.Dob))</p>
-                        <p style="position: absolute; bottom: 60px; margin-left: 4px;">@(getDistanceFromLatLonInKm(thisUser.Latitude, thisUser.Longitude, item.Latitude, item.Longitude)) km</p>
                     </div>
                 }
-                <div class="tinder--buttons" style="z-index: 9999999; display: flex; bottom: 120px; margin-top: 40%;">
+                <div class="tinder--buttons"  style="z-index: 9999999; display: flex; bottom: 120px; margin-top: 40%;">
                     <button id="nope" style="cursor: url(https://cur.cursors-4u.net/games/gam-14/gam1338.cur), auto !important;"><i style="color: cornflowerblue; " class="fa fa-times"></i></button>
                     <button id="love" style="cursor: url('https://i.imgur.com/K10EMnr.png'),auto!important;"><i class="fa fa-heart"></i></button>
                 </div>
