@@ -3,7 +3,6 @@
 @{
     ViewData["Title"] = "Test";
     Layout = "_MatchLayout.cshtml";
-    var user = TempData["user"] as UserAccount;
 }
 @{
     PRN211Context db = new PRN211Context();
@@ -13,37 +12,6 @@
     UserAccount getUserById(int? id)
     {
         return db.UserAccounts.Where(u => u.Id == id).FirstOrDefault();
-    }
-    int getAgeByDate(DateTime date)
-    {
-        // Save today's date.
-        var today = DateTime.Today;
-
-        // Calculate the age.
-        var age = today.Year - date.Year;
-
-        // Go back to the year in which the person was born in case of a leap year
-        if (date.Date > today.AddYears(-age)) age--;
-        return age;
-    }
-    UserAccount thisUser = getUserById(UserId);
-    double getDistanceFromLatLonInKm(double lat1, double lon1, double lat2, double lon2) {
-        var R = 6371; // Radius of the earth in km
-        var dLat = deg2rad(lat2 - lat1); // deg2rad below
-        var dLon = deg2rad(lon2 - lon1);
-        var a =
-            Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
-            Math.Cos(deg2rad(lat1)) *
-            Math.Cos(deg2rad(lat2)) *
-            Math.Sin(dLon / 2) *
-            Math.Sin(dLon / 2);
-        var c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
-        var d = R * c; // Distance in km
-        return Math.Round(d,1);
-    }
-
-    double deg2rad(double deg) {
-        return deg * (Math.PI / 180);
     }
 }
 <div class="scr3" style="display: none">
@@ -94,10 +62,7 @@
             <div class="avatar">
                 <img src="https://anhdep123.com/wp-content/uploads/2020/05/%E1%BA%A3nh-c%C6%B0%E1%BB%9Di-ch%E1%BA%BF.jpg" alt="" />
             </div>
-            <div class="title" style="display:flex">
-                <p>@user.Nickname</p>
-                <a asp-controller="User" asp-action="Logout">Logout</a>
-            </div>
+            <div class="title">Anonymous</div>
         </div>
         <div class="menu">
             <ul>
@@ -129,16 +94,14 @@
             <div class="tinder--cards" style="padding: 0; margin: 0; align-items: center; margin-right:20%;">
                 @foreach (var item in userAccounts)
                 {
-                <div class="tinder--card" style="height: 720px; padding: 0">
-                    <input type="hidden" value="@(item.Id)" />
-                    <img style="position: relative; height: 100%" src="https://images.unsplash.com/photo-1604311795833-25e1d5c128c6?ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8OSUzQTE2fGVufDB8fDB8fA%3D%3D&ixlib=rb-1.2.1&w=1000&q=80" />
-                    <h3 style="position: absolute; bottom: 120px; margin-left: 4px;">@(item.Name)</h3>
-                    <p style="position: absolute; bottom: 100px; margin-left: 4px;">@(item.Address)</p>
-                    <p style="position: absolute; bottom: 80px; margin-left: 4px;">@(getAgeByDate(item.Dob))</p>
-                    <p style="position: absolute; bottom: 60px; margin-left: 4px;">@(getDistanceFromLatLonInKm(thisUser.Latitude, thisUser.Longitude, item.Latitude, item.Longitude)) km</p>
-                </div>
+                    <div class="tinder--card" style="height: 720px; padding: 0">
+                        <input type="hidden" value="@(item.Id)" />
+                        <img style="position: relative; height: 100%" src="https://images.unsplash.com/photo-1604311795833-25e1d5c128c6?ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8OSUzQTE2fGVufDB8fDB8fA%3D%3D&ixlib=rb-1.2.1&w=1000&q=80" />
+                        <h3 style="position: absolute; bottom: 120px; margin-left: 4px;">@(item.Name)</h3>
+                        <p style="position: absolute; bottom: 100px; margin-left: 4px;">@(item.Password)</p>
+                    </div>
                 }
-                <div class="tinder--buttons" style="z-index: 9999999; display: flex; bottom: 120px; margin-top: 40%;">
+                <div class="tinder--buttons"  style="z-index: 9999999; display: flex; bottom: 120px; margin-top: 40%;">
                     <button id="nope" style="cursor: url(https://cur.cursors-4u.net/games/gam-14/gam1338.cur), auto !important;"><i style="color: cornflowerblue; " class="fa fa-times"></i></button>
                     <button id="love" style="cursor: url('https://i.imgur.com/K10EMnr.png'),auto!important;"><i class="fa fa-heart"></i></button>
                 </div>
